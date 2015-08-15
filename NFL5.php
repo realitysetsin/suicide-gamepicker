@@ -3,7 +3,7 @@
 require('Strategy.php');
 
 // you should only need to set these once per season
-define('THIS_YEAR', 2014);
+define('THIS_YEAR', 2015);
 define('NUM_WEEKS', 17);
 
 // various strategies
@@ -11,7 +11,7 @@ define('STRATEGY_SAME_CONFERENCE', 'Strategy_Conf');
 define('STRATEGY_WEEKS', 'Strategy_Weeks');
 define('STRATEGY_MATCHUPS', 'Strategy_Matchups');
 
-define('POWER_RANKINGS_URL', 'http://www.masseyratings.com/ratejson.php?s=262648');
+define('POWER_RANKINGS_URL', 'http://www.masseyratings.com/ratejson.php?s=279539');
 
 class NFL5 {
 
@@ -21,9 +21,11 @@ class NFL5 {
 
     public function __construct() {
         try {
-            $this->db = new PDO("mysql:host=localhost;dbname=nfl", 'nfl', '!nfl1');
+            $this->db = new PDO("mysql:host=localhost;dbname=nfl", 'nfl', '!nfl1', array(
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ));
         } catch (PDOException $e) {
-            die(var_dump($e));
+            var_dump($e->getMessage());
             throw $e;
         }
         $this->createTeamLookupTable();
@@ -97,12 +99,12 @@ class NFL5 {
 
         foreach ($data['DI'] as $d) {
             $id = $this->lookup[$d[0][0]]; // get id by team
-            $this->lookup[$id]['rank']    = $d[5];
-            $this->lookup[$id]['rating']  = $d[6];
-            $this->lookup[$id]['power']   = $d[8];
-            $this->lookup[$id]['offense'] = $d[10];
-            $this->lookup[$id]['defense'] = $d[12];
-            $this->lookup[$id]['hfa']     = $d[13];
+            $this->lookup[$id]['rank']    = $d[4];
+            $this->lookup[$id]['rating']  = $d[5];
+            $this->lookup[$id]['power']   = $d[7];
+            $this->lookup[$id]['offense'] = $d[9];
+            $this->lookup[$id]['defense'] = $d[11];
+            $this->lookup[$id]['hfa']     = $d[12];
         }
 
         foreach ($this->schedule as $week => $games) {

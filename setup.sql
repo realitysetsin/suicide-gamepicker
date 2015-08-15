@@ -3,8 +3,8 @@ CREATE TABLE `schedule` (
   `kickoff` datetime NOT NULL,
   `hteamid` int NOT NULL,
   `ateamid` int NOT NULL,
-  `hscore` int NOT NULL,
-  `ascore` int NOT NULL
+  `hscore` int,
+  `ascore` int
 ) COMMENT='' ENGINE='InnoDB' COLLATE 'utf8_unicode_ci';
 
 CREATE TABLE `team` (

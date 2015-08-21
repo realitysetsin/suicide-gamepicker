@@ -15,9 +15,15 @@ define('POWER_RANKINGS_URL', 'http://www.masseyratings.com/ratejson.php?s=279539
 
 class NFL5 {
 
+    const SEASON_START = '2015-09-10 00:00:00';
+    const SEASON_END = '2016-01-03 23:59:59';
+
     private $db;
     private $lookup;
     private $schedule;
+
+    private $season_start;
+    private $season_end;
 
     public function __construct() {
         try {
@@ -29,6 +35,9 @@ class NFL5 {
             throw $e;
         }
         $this->createTeamLookupTable();
+
+        $this->season_start = new DateTime(self::SEASON_START);
+        $this->season_end = new DateTime(self::SEASON_END);
     }
 
     public function &getDB() {
@@ -142,6 +151,26 @@ class NFL5 {
             'start' => $week_start,
             'end' => $week_end,
         );
+    }
+
+    private function isInRangeThisSeason(\DateTime $game_start) {
+        return ($game_start >= $this->season_start && $game_start <= $this->season_end);
+    }
+
+    public function getGameDateThisSeason($date_string, $time_string) {
+        $date = new \DateTime("$date_string $time_string");
+
+        if ($this->isInRangeThisSeason($date)) {
+            return $date;
+        } else {
+            $date_next_year = clone $date;
+            $date_next_year->add(new \DateInterval('P1Y'));
+            if ($this->isInRangeThisSeason($date_next_year)) {
+                return $date_next_year;
+            } else {
+                throw new \RuntimeException("Date does not occur during the regular season this year ($date_string).");
+            }
+        }
     }
 
     // takes a full string like 'Green Bay Packers' and returns just the mascot part

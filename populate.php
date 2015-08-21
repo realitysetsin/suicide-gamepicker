@@ -52,15 +52,21 @@ if ($year == THIS_YEAR) {
 
             // date has to be converted into 24 hour time
             $date = preg_replace('/[\r\n]+/', '', $children->item(4)->nodeValue);
-            $game_day = DateTime::createFromFormat('U', strtotime($date));
-            if ($game_day < $season_start) continue;
-
             $time = $children->item(12)->nodeValue;
+
+            /* @var $game_day DateTime */
+            try {
+                $game_day = $nfl->getGameDateThisSeason($date, $time);
+            } catch (\RuntimeException $e) {
+                var_dump($e->getMessage());
+                // game does not occur this season. should not have been included in list
+                continue;
+            }
 
             try {
                 $stmt = $db->prepare($upcoming_games_sql);
                 $stmt->execute(array(
-                    date('Y-m-d H:i:s', strtotime("$date $time")), // this actually works
+                    $game_day->format('Y-m-d H:i:s'),
                     $lookup[$nfl->getMascot($children->item(10)->nodeValue)],
                     $lookup[$nfl->getMascot($children->item(6)->nodeValue)],
                 ));

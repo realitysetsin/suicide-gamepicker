@@ -9,11 +9,7 @@
 
 class Strategy_Weeks implements Strategy {
     
-    private $nfl;
-    
-    public function __construct(NFL5 $nfl) {
-        $this->nfl = $nfl;
-    }
+    public function __construct(NFL5 $nfl) {}
     
     public function apply($schedule) {
         
